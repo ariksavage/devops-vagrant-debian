@@ -1,12 +1,10 @@
-// Copy this to config.json and update as needed.
+// Copy this to config/vagrant.config.json and update as needed.
 {
   "name": "Test Box",
   "post_up_message": "WELCOME TO TEST",
+  "ip": "192.168.42.100",
   "url": "test.local",
   "alias": ["www.test.local"],
-  "ip": "192.168.42.100",
-  "gui": false,
-  "memory": "4096",
   "mysql": {
     "root_pw": "nkljhlk8uyt",
     "database": "test_db",
@@ -15,10 +13,10 @@
       "password": "asdfghjk"
     }
   },
-  
+  "web_root": "/var/www/http",
   "synced_folders": [
     {
-      "host": "..http/",
+      "host": "http/",
       "guest": "/var/www/http",
       "owner": "vagrant",
       "group": "www-data",
@@ -27,7 +25,7 @@
       "fmode": 664
     },
     {
-      "host": "..tools/",
+      "host": "tools/",
       "guest": "/home/vagrant/tools",
       "owner": "vagrant",
       "group": "www-data",
@@ -36,16 +34,7 @@
       "fmode": 764
     },
     {
-    "host": "..config/",
-    "guest": "/home/vagrant/config",
-    "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 764
-    },
-    {
-    "host": "..db/",
+    "host": "db/",
     "guest": "/home/vagrant/db",
     "owner": "vagrant",
       "group": "www-data",
@@ -74,5 +63,7 @@
       "protocol": "tcp",
       "auto_correct": true
     }
-  ]
+  ],
+  "gui": false,
+  "memory": "4096"
 }

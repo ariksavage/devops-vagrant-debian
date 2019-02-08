@@ -4,17 +4,15 @@
 ################################################################################
 required_plugins=['vagrant-hostsupdater', 'vagrant-vbguest']
 required_plugins.each do |plugin|
-  if Vagrant.has_plugin?(plugin)
-    # nothing
-  else
+  if !Vagrant.has_plugin?(plugin)
     raise plugin.to_s + " is not installed. This plug-in is required. Run ``vagrant plugin install "+plugin.to_s+"`` to install."
   end
 end
 ################################################################################
-if File.file?("config.json")
-    config_json = JSON.parse(File.read("config.json"))
+if File.exist?("config/vagrant.config.json")
+  config_json = JSON.parse(File.read("config/vagrant.config.json"))
 end
-#verify no defaults
+# Verify no defaults
 if config_json["url"].eql? "default.local"
   raise "You are using the default URL. Edit the config.json to update it."
 end
@@ -22,15 +20,16 @@ end
 if config_json["mysql"]["root_pw"].eql? 'root'
   raise "You are using the default MySQL root password. Edit the config.json to update it."
 end
-################################################################################################
+################################################################################
 Vagrant.configure("2") do |config|
   ##############################################################################
   # BOX BASE OPTIONS
   ##############################################################################
   config.vm.box = "debian/jessie64"
+  config.vm.box_url="https://app.vagrantup.com/debian/boxes/jessie64"
   config.vm.box_check_update = true
   config.vm.define config_json["name"]
-  config.vm.post_up_message = "This is the start up message!"
+  config.vm.post_up_message = config_json["post_up_message"]
   ##############################################################################
   # VIRTUAL BOX OPTIONS
   ##############################################################################
@@ -49,7 +48,7 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.network "public_network", bridge: ["en0: Wi-Fi (AirPort)"]
-  
+
   if Vagrant.has_plugin?("vagrant-hostsupdater")
     config.vm.hostname = config_json["url"]
     config.hostsupdater.aliases = config_json["alias"]
@@ -75,8 +74,33 @@ Vagrant.configure("2") do |config|
   ################################################################################
   # PROVISION
   ################################################################################
-  config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => config_json["mysql"]["root_pw"], :privileged => true
-  config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [config_json["mysql"]["root_pw"], config_json["mysql"]["database"], config_json["mysql"]["user"]["username"], config_json["mysql"]["user"]["password"]], :privileged => true
+  # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
+  mysql_root_pw = config_json["mysql"]["root_pw"]
+  mysql_username = config_json["mysql"]["user"]["username"]
+  mysql_password = config_json["mysql"]["user"]["password"]
+  mysql_db = config_json["mysql"]["database"]
+  mysql_content = config_json["mysql"]["content"]
+  web_root = config_json["web_root"]
+
+  if !mysql_root_pw.nil? && !mysql_root_pw.empty?
+    config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => mysql_root_pw, :privileged => true
+  end
+
+  # Create database
+  if !mysql_root_pw.nil? && !mysql_root_pw.empty? && !mysql_username.nil? && !mysql_username.empty? && !mysql_password.nil? && !mysql_password.empty? && !mysql_db.nil? && !mysql_db.empty?
+    config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, mysql_db, mysql_username, mysql_password], :privileged => true
+  end
+
+  #import data to database
+  if !mysql_username.nil? && !mysql_username.empty? && !mysql_password.nil? && !mysql_password.empty? && !mysql_db.nil? && !mysql_db.empty? && !mysql_content.nil? && !mysql_content.empty?
+    config.vm.provision :shell, :path => "provision/import_database.sh", :args => [mysql_username, mysql_password, mysql_db, mysql_content], :privileged => true
+  end
+
+  # configure apache
+  if !web_root.nil? && !web_root.empty?
+    config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => web_root, :privileged => true
+  end
+
   config.ssh.forward_agent = true
   config.vm.boot_timeout = 120
 end

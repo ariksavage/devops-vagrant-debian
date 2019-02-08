@@ -1,7 +1,12 @@
+#OSX Garbage
+.DS_store
+.DS_Store
 #actual Vagrant box
 .vagrant/*
-# Config info, passwords, etc"
-config.json
+
+config/*
 db/*
 tools/*
 http/*
+
+node_modules/*

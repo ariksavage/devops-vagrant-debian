@@ -21,23 +21,6 @@ php -v
 # Install Apache
 echo "Install Apache2"
 DEBIAN_FRONTEND=noninteractive apt-get -qq install apache2
-echo "Configure Apache"
-# Configure Apache
-echo "<VirtualHost *:80>
-    DocumentRoot /var/www/http
-    AllowEncodedSlashes On
-    <Directory /var/www/http>
-        Options +Indexes +FollowSymLinks
-        DirectoryIndex index.php index.html
-        Order allow,deny
-        Allow from all
-        AllowOverride All
-    </Directory>
-    ErrorLog ${APACHE_LOG_DIR}/error.log
-    CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
-a2enmod rewrite
-service apache2 restart
 service apache2 status
 
 #MySQL
