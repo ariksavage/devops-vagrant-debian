@@ -34,6 +34,10 @@ else
     config.vm.box_check_update = true
     config.vm.define config_json["name"]
     config.vm.post_up_message = config_json["post_up_message"]
+    #timezone
+    if Vagrant.has_plugin?("vagrant-timezone")
+      config.timezone.value = "America/Chicago"
+    end
     ##############################################################################
     # VIRTUAL BOX OPTIONS
     ##############################################################################
