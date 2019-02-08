@@ -1,12 +1,4 @@
 #OSX Garbage
-.DS_store
 .DS_Store
 #actual Vagrant box
 .vagrant/*
-
-config/*
-db/*
-tools/*
-http/*
-
-node_modules/*
