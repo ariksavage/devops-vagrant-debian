@@ -11,7 +11,9 @@ required_plugins.each do |plugin|
   end
 end
 ################################################################################
-config_json = JSON.parse(File.read("./config.json"))
+if File.file?("config.json")
+    config_json = JSON.parse(File.read("config.json"))
+end
 #verify no defaults
 if config_json["url"].eql? "default.local"
   raise "You are using the default URL. Edit the config.json to update it."
@@ -35,7 +37,7 @@ Vagrant.configure("2") do |config|
   config.vm.provider "virtualbox" do |vb|
     vb.gui = config_json["gui"]
     vb.memory = config_json["memory"]
-    vb.name = "barhost"
+    vb.name = config_json["name"]
   end
   ##############################################################################
   # NETWORK OPTIONS

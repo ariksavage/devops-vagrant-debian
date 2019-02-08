@@ -1,0 +1,69 @@
+// Copy this to config.json and update as needed.
+{
+  "name": "Test Box",
+  "post_up_message": "WELCOME TO TEST",
+  "url": "test.local",
+  "alias": ["www.test.local"],
+  "ip": "192.168.42.100",
+  "gui": false,
+  "memory": "4096",
+  "mysql": {
+    "root_pw": "nkljhlk8uyt",
+    "database": "test_db",
+    "user": {
+      "username": "test_admin",
+      "password": "asdfghjk"
+    }
+  },
+  
+  "synced_folders": [
+    {
+      "host": "http/",
+      "guest": "/var/www/http",
+      "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 664
+    },
+    {
+      "host": "tools/",
+      "guest": "/home/vagrant/tools",
+      "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 764
+    },
+    {
+    "host": "config/",
+    "guest": "/home/vagrant/config",
+    "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 764
+    }
+  ],
+
+  "forwarded_ports": [
+    {
+      "guest": 35729,
+      "host": 35729,
+      "protocol": "tcp",
+      "auto_correct": true
+    },
+    {
+      "guest": 8983,
+      "host": 8983,
+      "protocol": "tcp",
+      "auto_correct": true
+    },
+    {
+      "guest": 3306,
+      "host": 3306,
+      "protocol": "tcp",
+      "auto_correct": true
+    }
+  ]
+}
