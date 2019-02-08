@@ -2,12 +2,9 @@
   Vagrant Settings for Debian Web Server
 
 ## Initial Setup
-  1.  Copy the example-vagrant.config.json to config/vagrant.config.json
+  1.  Copy the example-vagrant.config.json to ../config/vagrant.config.json
   2.  Update any settings necessary.
-  3.  Initialize submodules:
-        host$ git submodule init && git submodule update
   4.  host$ vagrant up
-  5.  host$ npm install && gulp
 
 ## MySQL Connection (host)
   Ensure no other boxes are running. This gets it confused
