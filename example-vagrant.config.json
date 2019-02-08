@@ -14,9 +14,10 @@
     }
   },
   "web_root": "/var/www/http",
+  // If vagrant is a submodule of a project, key folders will be up a directory.
   "synced_folders": [
     {
-      "host": "http/",
+      "host": "../http",
       "guest": "/var/www/http",
       "owner": "vagrant",
       "group": "www-data",
@@ -25,7 +26,16 @@
       "fmode": 664
     },
     {
-      "host": "tools/",
+      "host": "../config",
+      "guest": "/home/vagrant/tools",
+      "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 664
+    },
+    {
+      "host": "../tools",
       "guest": "/home/vagrant/tools",
       "owner": "vagrant",
       "group": "www-data",
@@ -34,7 +44,7 @@
       "fmode": 764
     },
     {
-    "host": "db/",
+    "host": "../db",
     "guest": "/home/vagrant/db",
     "owner": "vagrant",
       "group": "www-data",
