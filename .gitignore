@@ -1,0 +1,7 @@
+#actual Vagrant box
+.vagrant/*
+# Config info, passwords, etc"
+config.json
+db/*
+tools/*
+http/*
