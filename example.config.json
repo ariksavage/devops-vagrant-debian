@@ -18,7 +18,7 @@
   
   "synced_folders": [
     {
-      "host": "http/",
+      "host": "..http/",
       "guest": "/var/www/http",
       "owner": "vagrant",
       "group": "www-data",
@@ -27,7 +27,7 @@
       "fmode": 664
     },
     {
-      "host": "tools/",
+      "host": "..tools/",
       "guest": "/home/vagrant/tools",
       "owner": "vagrant",
       "group": "www-data",
@@ -36,8 +36,17 @@
       "fmode": 764
     },
     {
-    "host": "config/",
+    "host": "..config/",
     "guest": "/home/vagrant/config",
+    "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 764
+    },
+    {
+    "host": "..db/",
+    "guest": "/home/vagrant/db",
     "owner": "vagrant",
       "group": "www-data",
       "type": "nfs",
