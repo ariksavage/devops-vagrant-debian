@@ -4,7 +4,8 @@
 ## Initial Setup
   1.  Copy the example-vagrant.config.json to ../config/vagrant.config.json
   2.  Update any settings necessary.
-  4.  host$ vagrant up
+  3.  host$ `cd vagrant`
+  4.  host$ `vagrant up`
 
 ## MySQL Connection (host)
   Ensure no other boxes are running. This gets it confused

@@ -1,20 +1,18 @@
-// Copy this to config/vagrant.config.json and update as needed.
 {
-  "name": "Test Box",
-  "post_up_message": "WELCOME TO TEST",
+  "name": "Base Box",
+  "post_up_message": "Welcome to Base",
   "ip": "192.168.42.100",
-  "url": "test.local",
-  "alias": ["www.test.local"],
+  "url": "base.local",
+  "alias": ["www.base.local"],
   "mysql": {
-    "root_pw": "nkljhlk8uyt",
-    "database": "test_db",
+    "root_pw": "abcdefg",
+    "database": "default_db",
     "user": {
-      "username": "test_admin",
-      "password": "asdfghjk"
+      "username": "admin",
+      "password": "zyxwvutsr"
     }
   },
   "web_root": "/var/www/http",
-  // If vagrant is a submodule of a project, key folders will be up a directory.
   "synced_folders": [
     {
       "host": "../http",
@@ -27,7 +25,7 @@
     },
     {
       "host": "../config",
-      "guest": "/home/vagrant/tools",
+      "guest": "/home/vagrant/config",
       "owner": "vagrant",
       "group": "www-data",
       "type": "nfs",
