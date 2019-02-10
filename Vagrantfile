@@ -109,6 +109,17 @@ else
       config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => web_root, :privileged => true
     end
 
+    cms = config_json["cms"]
+    if !cms.nil? && !cms.empty?
+      case cms
+        when "wordpress"
+          print "Setting up WordPress"
+          config.vm.provision :shell, :path => "provision/cms/wordpress.sh", :args => [web_root, mysql_db, mysql_username, mysql_password] :privileged => true
+        else
+          print "No CMS"
+      end
+    end
+
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
   end
