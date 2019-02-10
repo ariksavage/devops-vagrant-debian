@@ -27,6 +27,7 @@ sudo debconf-set-selections <<< "mysql-server mysql-server/root_password passwor
 sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $mysql_root_pass"
 DEBIAN_FRONTEND=noninteractive apt-get -qq --force-yes install mysql-server
 #NodeJS
-DEBIAN_FRONTEND=noninteractive apt-get install curl
 curl -sL https://deb.nodesource.com/setup_11.x | sudo -E bash -DEBIAN_FRONTEND=noninteractive
-sudo apt-get install -y nodejs
+sudo apt-get install -qq nodejs
+#Unzip
+DEBIAN_FRONTEND=noninteractive apt-get install -qq unzip

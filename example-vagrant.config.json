@@ -50,6 +50,15 @@
       "type": "nfs",
       "dmode": 775,
       "fmode": 764
+    },
+    {
+    "host": "../apache_logs",
+    "guest": "/var/log/apache2",
+    "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 764
     }
   ],
 
