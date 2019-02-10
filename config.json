@@ -1,22 +1,21 @@
+
 {
-  "name": "Base Box",
-  "post_up_message": "Welcome to Base",
-  "cms": "",
   "ip": "192.168.42.100",
-  "url": "base.local",
-  "alias": ["www.base.local"],
+  "name": "Test Box",
+  "post_up_message": "WELCOME TO TEST",
+  "url": "test.local",
+  "alias": ["www.test.local"],
   "mysql": {
-    "root_pw": "abcdefg",
-    "database": "default_db",
+    "root_pw": "nkljhlk8uyt",
+    "database": "test_db",
     "user": {
-      "username": "admin",
-      "password": "zyxwvutsr"
+      "username": "test_admin",
+      "password": "asdfghjk"
     }
   },
-  "web_root": "/var/www/http",
   "synced_folders": [
     {
-      "host": "../http",
+      "host": "http",
       "guest": "/var/www/http",
       "owner": "vagrant",
       "group": "www-data",
@@ -25,16 +24,7 @@
       "fmode": 664
     },
     {
-      "host": "../config",
-      "guest": "/home/vagrant/config",
-      "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 664
-    },
-    {
-      "host": "../tools",
+      "host": "tools",
       "guest": "/home/vagrant/tools",
       "owner": "vagrant",
       "group": "www-data",
@@ -43,7 +33,16 @@
       "fmode": 764
     },
     {
-    "host": "../db",
+    "host": "config",
+    "guest": "/home/vagrant/config",
+    "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 764
+    },
+    {
+    "host": "db",
     "guest": "/home/vagrant/db",
     "owner": "vagrant",
       "group": "www-data",
@@ -52,7 +51,6 @@
       "fmode": 764
     }
   ],
-
   "forwarded_ports": [
     {
       "guest": 35729,
@@ -73,6 +71,6 @@
       "auto_correct": true
     }
   ],
-  "gui": false,
-  "memory": "4096"
+  "memory": "4096",
+  "gui": false
 }
