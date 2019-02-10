@@ -1,4 +1,5 @@
 #!
+echo "Installing WordPress to $1"
 root_dir="$1"
 db_name="$2"
 db_user="$3"
@@ -6,11 +7,11 @@ db_pass="$4"
 
 cd "$root_dir"
 
-wget https://wordpress.org/latest.zip .
-unzip latest.zip
+wget https://wordpress.org/latest.zip . >/dev/null 2>&1
+unzip latest.zip >/dev/null 2>&1
 rm latest.zip
-rmdir wordpress
 mv wordpress/* .
+rmdir wordpress
 #mv
 
 function wp_define(){
@@ -21,7 +22,7 @@ function wp_define(){
 }
 
 #update wp-config
-# cp wp-config-sample.php wp-config.php
+cp wp-config-sample.php wp-config.php
 wp_define 'DB_NAME'     "$db_name"
 wp_define 'DB_USER'     "$db_user"
 wp_define 'DB_PASSWORD' "$db_pass"
