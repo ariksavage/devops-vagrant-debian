@@ -113,10 +113,9 @@ else
     if !cms.nil? && !cms.empty?
       case cms
         when "wordpress"
-          print "Setting up WordPress"
           config.vm.provision :shell, :path => "provision/cms/wordpress.sh", :args => [web_root, mysql_db, mysql_username, mysql_password], :privileged => true
         else
-          print "No CMS"
+          # Do nothing
       end
     end
 
