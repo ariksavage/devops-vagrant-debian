@@ -9,14 +9,13 @@ echo "Writing default host..."
 if [ "$ssl" == "true" ]; then
 
   a2enmod ssl
-  mkdir /home/vagrant/certs/
-  cd /home/vagrant/certs/
-  # Step 1: Generate the SSL Key and Certificate
+  certificates_dir="/home/vagrant/certificates"
+  mkdir "${certificates_dir}"
+  cd "${certificates_dir}"
+  # Generate the SSL Key and Certificate
   openssl genrsa -out "${url}".key 2048
   openssl req -new -x509 -key "${url}".key -out "${url}".cert -days 3650 -subj /CN="${url}"
 
-  #Step 2: Install Certificate on Vagrant’s Apache
-  ## Add SSL Certificate and Key to Apache
 
   hostfile="
 <VirtualHost *:443>
@@ -25,10 +24,8 @@ if [ "$ssl" == "true" ]; then
 
   #adding custom SSL cert
   SSLEngine on
-  SSLCertificateFile /home/vagrant/certs/${url}.cert
-  SSLCertificateKeyFile /home/vagrant/certs/${url}.key
-
-  Redirect permanent / https://${url}/
+  SSLCertificateFile ${certificates_dir}/${url}.cert
+  SSLCertificateKeyFile ${certificates_dir}/${url}.key
 
   AllowEncodedSlashes On
   <Directory ${root}>
@@ -41,6 +38,7 @@ if [ "$ssl" == "true" ]; then
   ErrorLog \${APACHE_LOG_DIR}/error.log
   CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>
+
 #redirect http to https
 <VirtualHost *:80>
   ServerName ${url}
