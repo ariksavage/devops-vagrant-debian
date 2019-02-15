@@ -2,6 +2,7 @@
   "name": "Base Box",
   "post_up_message": "Welcome to Base",
   "cms": "",
+  "ssl": true,
   "ip": "192.168.42.100",
   "url": "base.local",
   "alias": ["www.base.local"],
@@ -59,7 +60,16 @@
       "type": "nfs",
       "dmode": 775,
       "fmode": 764
-    }
+    },
+    {
+      "host": "../sites-available",
+      "guest": "/etc/apache2/sites-available",
+      "owner": "vagrant",
+      "group": "www-data",
+      "type": "nfs",
+      "dmode": 775,
+      "fmode": 664
+    },
   ],
 
   "forwarded_ports": [
