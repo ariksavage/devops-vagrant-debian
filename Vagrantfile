@@ -92,6 +92,9 @@ else
     ssl = config_json["ssl"] ? "true" : "false"
     url = config_json["url"]
 
+    config.vm.provision :shell, :path => "provision/create_local_env.sh", :args => ['Local', '127.0.0.1', 'vagrant', mysql_username, mysql_password, 3306, mysql_db], :privileged => true
+
+
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
       config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => mysql_root_pw, :privileged => true
     end
