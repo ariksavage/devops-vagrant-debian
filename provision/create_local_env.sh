@@ -14,7 +14,7 @@ ssh_user=${ssh_user}
 #MySQL
 mysql_username=${mysql_username}
 mysql_password=${mysql_password}
-mysql_port=3306
-mysql_database=default_db
+mysql_port=${mysql_port}
+mysql_database=${mysql_database}
 "
 echo "$env" > /home/vagrant/config/.env.local
