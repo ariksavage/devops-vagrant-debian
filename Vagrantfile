@@ -119,8 +119,6 @@ else
       case cms
         when "wordpress"
           config.vm.provision :shell, :path => "provision/cms/wordpress.sh", :args => [web_root, mysql_db, mysql_username, mysql_password], :privileged => true
-        else
-          # Do nothing
       end
     end
 

@@ -1,4 +1,7 @@
-#!
+#!/bin/bash
+source /home/vagrant/tools/common.sh
+title "Configure local .env"
+
 name="$1"
 host="$2"
 url="$3"
@@ -8,7 +11,6 @@ mysql_username="$6"
 mysql_password="$7"
 mysql_port="$8"
 mysql_database="$9"
-
 
 env="name=${name}
 host=${host}
