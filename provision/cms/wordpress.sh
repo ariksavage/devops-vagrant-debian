@@ -1,5 +1,6 @@
-#!
-echo "Installing WordPress to $1"
+#!/bin/bash
+source /home/vagrant/tools/common.sh
+title "Installing WordPress to $1"
 root_dir="$1"
 db_name="$2"
 db_user="$3"
@@ -11,7 +12,7 @@ wget https://wordpress.org/latest.zip . >/dev/null 2>&1
 unzip latest.zip >/dev/null 2>&1
 rm latest.zip
 mv wordpress/* .
-rmdir wordpress
+rm -rf wordpress
 #mv
 
 function wp_define(){
@@ -49,4 +50,4 @@ wp_define 'LOGGED_IN_SALT'   "$salt"
 salt=$(salt)
 wp_define 'NONCE_SALT'       "$salt"
 #Update permissions
-echo "WORDPRESS HAS BEEN INSTALLED IN $root_dir"
+info "WORDPRESS HAS BEEN INSTALLED IN $root_dir"
