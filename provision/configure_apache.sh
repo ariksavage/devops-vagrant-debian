@@ -64,9 +64,8 @@ else
   CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>"
 fi
-echo "$hostfile" > /etc/apache2/sites-available/vagrant.conf
+echo "$hostfile" > "/etc/apache2/sites-available/000-default.conf"
 echo "Enable site"
-a2ensite vagrant
 echo "Enable mod_rewrite"
 a2enmod rewrite
 echo "restart Apache"
