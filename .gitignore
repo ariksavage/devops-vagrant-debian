@@ -2,3 +2,4 @@
 .DS_Store
 #actual Vagrant box
 .vagrant/*
+*.log
