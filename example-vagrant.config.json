@@ -53,7 +53,7 @@
       "fmode": 764
     },
     {
-    "host": "../apache_logs",
+    "host": "../logs",
     "guest": "/var/log/apache2",
     "owner": "vagrant",
       "group": "www-data",
