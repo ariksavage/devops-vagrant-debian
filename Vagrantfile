@@ -89,7 +89,6 @@ else
     mysql_db = config_json["mysql"]["database"]
     mysql_content = config_json["mysql"]["content"]
     web_root = config_json["web_root"]
-    ssl = config_json["ssl"] ? "true" : "false"
     url = config_json["url"]
 
     config.vm.provision :shell, :path => "provision/create_local_env.sh", :args => ['Local', '127.0.0.1', url, web_root, 'vagrant', mysql_username, mysql_password, 3306, mysql_db], :privileged => true
@@ -111,7 +110,7 @@ else
 
     # configure apache
     if !web_root.nil? && !web_root.empty?
-      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, ssl, url], :privileged => true
+      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url], :privileged => true
     end
 
     cms = config_json["cms"]

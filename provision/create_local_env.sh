@@ -1,6 +1,5 @@
 #!/bin/bash
-source /home/vagrant/tools/common.sh
-title "Configure local .env"
+echo "Configure local .env"
 
 name="$1"
 host="$2"

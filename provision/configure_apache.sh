@@ -1,15 +1,12 @@
 #!/bin/bash
-source /home/vagrant/tools/common.sh
 
-title "Configure Apache"
+echo "Configure Apache"
 root="$1"
-ssl="$2"
-url="$3"
-info "SSL is $ssl"
+url="$2"
 # Write hostfile
-info "Writing default host..."
+echo "Writing default host..."
 if [ "$ssl" == "true" ]; then
-  info "Enabling SSL..."
+  echo "Enabling SSL..."
   a2enmod ssl
   certificates_dir="/home/vagrant/certificates"
   mkdir "${certificates_dir}"
@@ -68,7 +65,7 @@ else
 </VirtualHost>"
 fi
 echo "$hostfile" > /etc/apache2/sites-available/000-default.conf
-info "Enable mod_rewrite"
+echo "Enable mod_rewrite"
 a2enmod rewrite
-info "restart Apache"
+echo "restart Apache"
 service apache2 restart
