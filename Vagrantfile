@@ -11,8 +11,8 @@ required_plugins.each do |plugin|
   end
 end
 ################################################################################
-if File.file?("config.json")
-    config_json = JSON.parse(File.read("config.json"))
+if File.file?("../config/vagrant.config.json")
+    config_json = JSON.parse(File.read("../config/vagrant.config.json"))
 end
 #verify no defaults
 if config_json["url"].eql? "default.local"
