@@ -10,6 +10,7 @@ mysql_username="$6"
 mysql_password="$7"
 mysql_port="$8"
 mysql_database="$9"
+cms="$10"
 
 env="name=${name}
 host=${host}
@@ -18,6 +19,9 @@ web_root=${root}
 
 #SSH
 ssh_user=${ssh_user}
+
+#CMS
+cms=${cms}
 
 #MySQL
 mysql_username=${mysql_username}

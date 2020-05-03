@@ -3,6 +3,7 @@
 echo "Configure Apache"
 root="$1"
 url="$2"
+ssl="$3"
 # Write hostfile
 echo "Writing default host..."
 if [ "$ssl" == "true" ]; then
@@ -19,7 +20,6 @@ if [ "$ssl" == "true" ]; then
   hostfile="
 <VirtualHost *:443>
   ServerName ${url}
-  ServerAlias www.${url}
   DocumentRoot ${root}
 
   #adding custom SSL cert
@@ -42,15 +42,15 @@ if [ "$ssl" == "true" ]; then
 #redirect http to https
 <VirtualHost *:80>
   ServerName ${url}
-  ServerAlias www.${url}
   DocumentRoot ${root}
   Redirect permanent / https://${url}
 </VirtualHost>"
+echo "$hostfile" > /etc/apache2/sites-available/000-default.conf
+a2ensite 000-default
 else
   hostfile="
 <VirtualHost *:80>
   ServerName ${url}
-  ServerAlias www.${url}
   DocumentRoot ${root}
   AllowEncodedSlashes On
   <Directory ${root}>
@@ -63,8 +63,10 @@ else
   ErrorLog \${APACHE_LOG_DIR}/error.log
   CustomLog \${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>"
+echo "$hostfile" > /etc/apache2/sites-available/default-ssl.conf
+a2ensite default-ssl
 fi
-echo "$hostfile" > /etc/apache2/sites-available/000-default.conf
+
 echo "Enable mod_rewrite"
 a2enmod rewrite
 echo "restart Apache"
