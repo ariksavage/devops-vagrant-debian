@@ -29,8 +29,7 @@ else
     ##############################################################################
     # BOX BASE OPTIONS
     ##############################################################################
-    config.vm.box = "debian/jessie64"
-    config.vm.box_url="https://app.vagrantup.com/debian/boxes/jessie64"
+    config.vm.box = config_json["box"]
     config.vm.box_check_update = true
     config.vm.define config_json["name"]
     config.vm.post_up_message = config_json["post_up_message"]
@@ -45,6 +44,7 @@ else
       vb.gui = config_json["gui"]
       vb.memory = config_json["memory"]
       vb.name = config_json["name"]
+      vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     end
     ##############################################################################
     # NETWORK OPTIONS
@@ -82,7 +82,7 @@ else
     ################################################################################
     # PROVISION
     ################################################################################
-    # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
+
     mysql_root_pw = config_json["mysql"]["root_pw"]
     mysql_username = config_json["mysql"]["user"]["username"]
     mysql_password = config_json["mysql"]["user"]["password"]
@@ -90,12 +90,14 @@ else
     mysql_content = config_json["mysql"]["content"]
     web_root = config_json["web_root"]
     url = config_json["url"]
+    cms = config_json["cms"]
+    ssl = config_json["ssl"]
 
-    config.vm.provision :shell, :path => "provision/create_local_env.sh", :args => ['Local', '127.0.0.1', url, web_root, 'vagrant', mysql_username, mysql_password, 3306, mysql_db], :privileged => true
+    config.vm.provision :shell, :path => "provision/create_local_env.sh", :args => ['Local', '127.0.0.1', url, web_root, 'vagrant', mysql_username, mysql_password, 3306, mysql_db, cms], :privileged => true
 
-
+    # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
-      config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => mysql_root_pw, :privileged => true
+      config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => [mysql_root_pw], :privileged => true
     end
 
     # Create database
@@ -110,15 +112,7 @@ else
 
     # configure apache
     if !web_root.nil? && !web_root.empty?
-      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url], :privileged => true
-    end
-
-    cms = config_json["cms"]
-    if !cms.nil? && !cms.empty?
-      case cms
-        when "wordpress"
-          config.vm.provision :shell, :path => "provision/cms/wordpress.sh", :args => [web_root, mysql_db, mysql_username, mysql_password], :privileged => true
-      end
+      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, ssl], :privileged => true
     end
 
     config.ssh.forward_agent = true
