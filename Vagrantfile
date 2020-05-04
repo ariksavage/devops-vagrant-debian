@@ -115,6 +115,15 @@ else
       config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, ssl], :privileged => true
     end
 
+    server_mail_type = config_json["server"]["mail"]["type"]
+    server_mail_address = config_json["server"]["mail"]["address"]
+    server_mail_password = config_json["server"]["mail"]["password"]
+    server_mail_recipient = config_json["server"]["mail"]["recipient"]
+
+    if !server_mail_type.nil? && !server_mail_type.empty? && !server_mail_address.nil? && !server_mail_address.empty? && !server_mail_password.nil? && !server_mail_password.empty? && !server_mail_recipient.nil? && !server_mail_recipient.empty?
+      config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [server_mail_type, server_mail_address, server_mail_password, server_mail_recipient], :privileged => true
+    end
+
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
   end
