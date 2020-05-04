@@ -1,4 +1,5 @@
 #!
+export DEBIAN_FRONTEND=noninteractive
 
 username="$1"
 password="$2"

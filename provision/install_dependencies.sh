@@ -1,4 +1,5 @@
 #!/bin/bash
+export DEBIAN_FRONTEND=noninteractive
 mysql_root_pass="$1"
 
 
@@ -51,10 +52,10 @@ debconf-set-selections <<< "mysql-apt-config mysql-apt-config/select-product sel
 
 
 export DEBIAN_FRONTEND=noninteractive
-wget http://repo.mysql.com/mysql-apt-config_0.8.13-1_all.deb
-dpkg -i mysql-apt-config_0.8.13-1_all.deb
-apt-get -qq update
-install_package mysql-server
+wget http://repo.mysql.com/mysql-apt-config_0.8.13-1_all.deb >/dev/null 2>&1
+dpkg -i mysql-apt-config_0.8.13-1_all.deb >/dev/null 2>&1
+apt-get -qq update >/dev/null 2>&1
+install_package mysql-server >/dev/null 2>&1
 # debconf-set-selections <<< "mysql-server mysql-server/root_password password $mysql_root_pass"
 # debconf-set-selections <<< "mysql-server mysql-server/root_password_again password $mysql_root_pass"
 # mysql_secure_installation ???
