@@ -87,14 +87,6 @@ else
     ################################################################################
 
     mysql_root_pw = config_json["mysql"]["root_pw"]
-    mysql_username = config_json["mysql"]["user"]["username"]
-    mysql_password = config_json["mysql"]["user"]["password"]
-    mysql_db = config_json["mysql"]["database"]
-    mysql_content = config_json["mysql"]["content"]
-    web_root = config_json["web_root"]
-    url = config_json["url"]
-    cms = config_json["cms"]
-    ssl = config_json["ssl"]
 
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
@@ -105,9 +97,18 @@ else
     account_type = config_json["server"]["mail"]["type"]
     email_addr = config_json["server"]["mail"]["sender"]
     email_pass = config_json["server"]["mail"]["password"]
-    test_recipient = config_json["server"]["mail"]["recipient"]
+    test_recipient = config_json["server"]["admin"]
     if !account_type.nil? && !account_type.empty? && !email_addr.nil? && !email_addr.empty? && !email_pass.nil? && !email_pass.empty?
       config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
+    end
+
+    web_root = config_json["web_root"]
+    url = config_json["url"]
+    server_admin = config_json["server"]["admin"]
+    ssl = config_json["ssl"]
+
+    if !web_root.nil? && !web_root.empty? && !url.nil? && !url.empty? && !server_admin.nil? && !server_admin.empty? && !ssl.nil? && !ssl.empty?
+      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
     end
 
     config.ssh.forward_agent = true
