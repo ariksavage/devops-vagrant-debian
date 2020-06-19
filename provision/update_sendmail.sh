@@ -12,11 +12,13 @@ echo "Install MSMTP..."
 apt-get install -qq msmtp
 
 echo "Create config for ${account_type}"
-global_config="/etc/msmtprc"
-root_config="/root/.msmtprc" #run as sudo, the "home" directory is /root
 
+local_config="/root/.msmtprc"
+touch "${local_config}"
+
+# Yahoo
 if [ "${account_type}" = "yahoo" ]; then
-cat <<EOT > "$global_config"
+cat <<EOT > "$local_config"
   account yahoo
   tls on
   tls_starttls off
@@ -28,9 +30,10 @@ cat <<EOT > "$global_config"
   password "${email_pass}"
 EOT
 fi
+# Gmail
 if [ "${account_type}" = "gmail" ]; then
   echo "Gmail"
-cat <<EOT > "$global_config"
+cat <<EOT > "$local_config"
   account gmail
   tls on
   tls_certcheck off
@@ -42,12 +45,13 @@ cat <<EOT > "$global_config"
   password "${email_pass}"
 EOT
 fi
-
-cp -p ${global_config} ${root_config}
-
+global_config="/etc/msmtprc"
+cp "${local_config}" "${global_config}"
+php_config="/etc/.msmtp_php"
 chown www-data:www-data "${global_config}"
+
+chmod 600 "${local_config}"
 chmod 600 "${global_config}"
-chmod 600 "${root_config}"
 
 echo "Update PHP ini"
 ini=$(php --ini | grep -P '(?<=Loaded Configuration File:)\s*(.*)$' | tr -s ' ' | cut -d ' ' -f 4)
@@ -55,11 +59,12 @@ ini=$(echo "$ini"  | tr -d '[:space:]')
 ini=$(echo "$ini" | sed "s/cli/apache2/") #shell loads /cli/php.ini, we want /apache2/php.ini
 msmtp_path=$(which msmtp)
 find=";*sendmail_path\s*=.*$"
-replace="sendmail_path = \"${msmtp_path} -C ${global_config} -a ${account_type} -t\""
+
+replace="sendmail_path = \"${msmtp_path} --debug -C ${global_config} --logfile /var/log/msmtp.log -a ${account_type} -t\""
 echo "REPLACE ${replace}"
 sed -i -E "s~$find~$replace~m" "$ini"
 service apache2 reload
-
+touch sample_email.txt
 echo "Send a test message to ${test_recipent}"
 echo -e "From: ${email_addr} \n\
 To: ${test_recipent} \n\
@@ -67,5 +72,5 @@ Subject: MSMTP Test Message \n\
 \n\
 This email was sent using MSMTP via ${account_type}." >> sample_email.txt
 
-cat sample_email.txt | msmtp --debug -a gmail "$test_recipent"
+cat sample_email.txt | msmtp --debug -a "${account_type}" "$test_recipent"
 rm sample_email.txt

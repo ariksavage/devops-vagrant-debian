@@ -3,3 +3,6 @@
 #actual Vagrant box
 .vagrant/*
 *.log
+tools/*
+web/*
+vagrant.config.json
