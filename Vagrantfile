@@ -101,6 +101,15 @@ else
       config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => [mysql_root_pw], :privileged => true
     end
 
+    #configure PHP sendmail to use gmail via msmtp
+    account_type = config_json["server"]["mail"]["type"]
+    email_addr = config_json["server"]["mail"]["sender"]
+    email_pass = config_json["server"]["mail"]["password"]
+    test_recipient = config_json["server"]["mail"]["recipient"]
+    if !account_type.nil? && !account_type.empty? && !email_addr.nil? && !email_addr.empty? && !email_pass.nil? && !email_pass.empty?
+      config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
+    end
+
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
   end
