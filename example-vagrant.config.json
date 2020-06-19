@@ -1,33 +1,36 @@
 {
   "name": "Base Box",
   "post_up_message": "Welcome to Base",
+  "box": "debian/buster64",
+  "box_url": "https://app.vagrantup.com/debian/boxes/buster64",
+  "box_check_update": true,
+  "gui": false,
+  "memory": 975,
   "cms": "",
-  "ssl": true,
+  "ssl": "true",
   "ip": "192.168.42.100",
-  "url": "base.local",
-  "alias": ["www.base.local"],
+  "url": "local.base.com",
+  "server": {
+    "admin": "ariksavage@gmail.com",
+    "mail": {
+      "type": "gmail",
+      "sender": "moxyserver@gmail.com",
+      "password": "*****"
+    }
+  },
   "mysql": {
-    "root_pw": "abcdefg",
+    "root_pw": "*****",
     "database": "default_db",
     "user": {
       "username": "admin",
-      "password": "zyxwvutsr"
+      "password": "*****"
     }
   },
-  "web_root": "/var/www/http",
+  "web_root": "/var/www/html",
   "synced_folders": [
     {
-      "host": "../http",
-      "guest": "/var/www/http",
-      "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 664
-    },
-    {
-      "host": "../config",
-      "guest": "/home/vagrant/config",
+      "host": "../web",
+      "guest": "/var/www/html",
       "owner": "vagrant",
       "group": "www-data",
       "type": "nfs",
@@ -51,36 +54,8 @@
       "type": "nfs",
       "dmode": 775,
       "fmode": 764
-    },
-    {
-    "host": "../logs",
-    "guest": "/var/log/apache2",
-    "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 764
-    },
-    {
-      "host": "../sites-available",
-      "guest": "/etc/apache2/sites-available",
-      "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 664
-    },
-    {
-      "host": "../certificates",
-      "guest": "/home/vagrant/certificates",
-      "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 664
     }
   ],
-
   "forwarded_ports": [
     {
       "guest": 35729,
@@ -101,6 +76,4 @@
       "auto_correct": true
     }
   ],
-  "gui": false,
-  "memory": "4096"
 }
