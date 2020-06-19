@@ -11,7 +11,10 @@ end
 ################################################################################
 if File.exist?("../config/vagrant.config.json")
   config_json = JSON.parse(File.read("../config/vagrant.config.json"))
+elsif File.exist?("vagrant.config.json")
+  config_json = JSON.parse(File.read("vagrant.config.json"))
 end
+
 # If no config, print error and exit. Otherwise vagrant up
 if config_json.nil? || config_json.empty?
   print "No vagrant.config.json file found.\n"
@@ -30,7 +33,7 @@ else
     # BOX BASE OPTIONS
     ##############################################################################
     config.vm.box = config_json["box"]
-    config.vm.box_check_update = true
+    config.vm.box_check_update = config_json["box_check_update"]
     config.vm.define config_json["name"]
     config.vm.post_up_message = config_json["post_up_message"]
     #timezone
@@ -42,7 +45,7 @@ else
     ##############################################################################
     config.vm.provider "virtualbox" do |vb|
       vb.gui = config_json["gui"]
-      vb.memory = config_json["memory"]
+      vb.customize ["modifyvm", :id, "--memory", config_json["memory"] ]
       vb.name = config_json["name"]
       vb.customize ["modifyvm", :id, "--natdnshostresolver1", "on"]
     end
@@ -55,7 +58,7 @@ else
       config.vm.network "forwarded_port", guest: port["guest"], host: port["host"], protocol: port["protocol"], auto_correct: port["auto_correct"]
     end
 
-    config.vm.network "public_network", bridge: ["en0: Wi-Fi (AirPort)"]
+    config.vm.network "public_network", bridge: ["en0: Wi-Fi (Wireless)"]
 
     if Vagrant.has_plugin?("vagrant-hostsupdater")
       config.vm.hostname = config_json["url"]
@@ -93,35 +96,9 @@ else
     cms = config_json["cms"]
     ssl = config_json["ssl"]
 
-    config.vm.provision :shell, :path => "provision/create_local_env.sh", :args => ['Local', '127.0.0.1', url, web_root, 'vagrant', mysql_username, mysql_password, 3306, mysql_db, cms], :privileged => true
-
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
       config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => [mysql_root_pw], :privileged => true
-    end
-
-    # Create database
-    if !mysql_root_pw.nil? && !mysql_root_pw.empty? && !mysql_username.nil? && !mysql_username.empty? && !mysql_password.nil? && !mysql_password.empty? && !mysql_db.nil? && !mysql_db.empty?
-      config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, mysql_db, mysql_username, mysql_password], :privileged => true
-    end
-
-    #import data to database
-    if !mysql_username.nil? && !mysql_username.empty? && !mysql_password.nil? && !mysql_password.empty? && !mysql_db.nil? && !mysql_db.empty? && !mysql_content.nil? && !mysql_content.empty?
-      config.vm.provision :shell, :path => "provision/import_database.sh", :args => [mysql_username, mysql_password, mysql_db, mysql_content], :privileged => true
-    end
-
-    # configure apache
-    if !web_root.nil? && !web_root.empty?
-      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, ssl], :privileged => true
-    end
-
-    server_mail_type = config_json["server"]["mail"]["type"]
-    server_mail_address = config_json["server"]["mail"]["address"]
-    server_mail_password = config_json["server"]["mail"]["password"]
-    server_mail_recipient = config_json["server"]["mail"]["recipient"]
-
-    if !server_mail_type.nil? && !server_mail_type.empty? && !server_mail_address.nil? && !server_mail_address.empty? && !server_mail_password.nil? && !server_mail_password.empty? && !server_mail_recipient.nil? && !server_mail_recipient.empty?
-      config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [server_mail_type, server_mail_address, server_mail_password, server_mail_recipient], :privileged => true
     end
 
     config.ssh.forward_agent = true
