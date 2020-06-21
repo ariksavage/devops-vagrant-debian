@@ -111,6 +111,12 @@ else
       config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
     end
 
+    swap_mem = config_json["swap_memory"]
+
+    if !web_root.nil? && !web_root.empty?
+      config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
+    end
+
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
   end
