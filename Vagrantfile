@@ -85,49 +85,56 @@ else
     ################################################################################
     # PROVISION
     ################################################################################
-
+    ip = config_json["ip"]
+    db_name = config_json['mysql']['database']
+    db_user = config_json['mysql']['user']['username']
+    db_password  = config_json['mysql']['user']['password']
     mysql_root_pw = config_json["mysql"]["root_pw"]
+    account_type = config_json["server"]["mail"]["type"]
+    email_addr = config_json["server"]["mail"]["sender"]
+    email_pass = config_json["server"]["mail"]["password"]
+    test_recipient = config_json["server"]["admin"]
+    web_root = config_json["web_root"]
+    url = config_json["url"]
+    server_admin = config_json["server"]["admin"]
+    ssl = config_json["ssl"]
+    swap_mem = config_json["swap_memory"]
+
+    # Write SquelPro config file on the host
+    config.vm.provision :host_shell do |host_shell|
+      host_shell.inline = "/bin/bash ./provision/sequel_pro_connection_export.sh #{db_name} #{ip} #{db_user}"
+    end
 
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
       config.vm.provision :shell, :path => "provision/install_dependencies.sh", :args => [mysql_root_pw], :privileged => true
     end
 
-    #configure PHP sendmail to use gmail via msmtp
-    account_type = config_json["server"]["mail"]["type"]
-    email_addr = config_json["server"]["mail"]["sender"]
-    email_pass = config_json["server"]["mail"]["password"]
-    test_recipient = config_json["server"]["admin"]
+    # Configure PHP sendmail to use gmail via msmtp
     if !account_type.nil? && !account_type.empty? && !email_addr.nil? && !email_addr.empty? && !email_pass.nil? && !email_pass.empty?
-      config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
+      # config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
     end
 
-    web_root = config_json["web_root"]
-    url = config_json["url"]
-    server_admin = config_json["server"]["admin"]
-    ssl = config_json["ssl"]
-
+    # Configure Apache
     if !web_root.nil? && !web_root.empty? && !url.nil? && !url.empty? && !server_admin.nil? && !server_admin.empty? && !ssl.nil? && !ssl.empty?
-      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
+      # config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
     end
 
-    swap_mem = config_json["swap_memory"]
+    
 
     if !web_root.nil? && !web_root.empty?
-      config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
+      # config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
     end
 
     # Create default database
-    db_name = config_json['mysql']['database']
-    db_user = config_json['mysql']['user']['username']
-    db_password  = config_json['mysql']['user']['password']
+    
     if !mysql_root_pw.nil? && !mysql_root_pw.empty? && !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
-      config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, db_name, db_user, db_password]
+      # config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, db_name, db_user, db_password]
     end
 
     # Import database if present
     if !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
-      config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
+      # config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
     end
 
     config.ssh.forward_agent = true
