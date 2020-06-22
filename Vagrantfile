@@ -117,6 +117,19 @@ else
       config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
     end
 
+    # Create default database
+    db_name = config_json['mysql']['database']
+    db_user = config_json['mysql']['user']['username']
+    db_password  = config_json['mysql']['user']['password']
+    if !mysql_root_pw.nil? && !mysql_root_pw.empty? && !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
+      config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, db_name, db_user, db_password]
+    end
+
+    # Import database if present
+    if !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
+      config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
+    end
+
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
   end
