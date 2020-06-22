@@ -8,7 +8,13 @@ user="$3"
 pass="$4"
 
 echo "Create ${db}"
+mysql -u root -p${rootpasswd} -e "CREATE DATABASE ${db} /*\!40100 DEFAULT CHARACTER SET utf8 */;";
+
 echo "Create ${user}"
+mysql -u root -p${rootpasswd} -e "CREATE USER ${user}@'localhost' IDENTIFIED BY '${pass}';"
+
 echo "Grant privileges on ${db} to ${user}"
+mysql -u root -p${rootpasswd} -e "GRANT ALL PRIVILEGES ON ${db}.* TO '${user}'@'localhost';"
+
 echo "Flush privileges"
-mysql -uroot -p${rootpasswd} -e "CREATE DATABASE ${db} /*\!40100 DEFAULT CHARACTER SET utf8 */;CREATE USER ${user}@'localhost' IDENTIFIED BY '${pass}';GRANT ALL PRIVILEGES ON ${db}.* TO '${user}'@'localhost';FLUSH PRIVILEGES;"
+mysql -u root -p${rootpasswd} -e "FLUSH PRIVILEGES;"
