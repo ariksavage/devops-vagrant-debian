@@ -1,17 +1,20 @@
 {
   "name": "Base Box",
   "post_up_message": "Welcome to Base",
+  "gui": false,
+  "memory": "4096",
+  "swap_memory": "8G",
+  "cms": "",
   "box": "debian/buster64",
   "box_url": "https://app.vagrantup.com/debian/boxes/buster64",
   "box_check_update": true,
-  "gui": false,
-  "memory": 975,
-  "cms": "",
   "ssl": "true",
   "ip": "192.168.42.100",
+  "gui": false,
+  "memory": "975",
   "url": "local.base.com",
   "server": {
-    "admin": "ariksavage@gmail.com",
+    "admin": "name@domain.com",
     "mail": {
       "type": "gmail",
       "sender": "moxyserver@gmail.com",
@@ -20,9 +23,9 @@
   },
   "mysql": {
     "root_pw": "*****",
-    "database": "default_db",
+    "database": "brand_new_database",
     "user": {
-      "username": "admin",
+      "username": "someguy",
       "password": "*****"
     }
   },
@@ -75,5 +78,5 @@
       "protocol": "tcp",
       "auto_correct": true
     }
-  ],
+  ]
 }
