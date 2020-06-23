@@ -2,23 +2,25 @@
 size="$1"
 # https://linuxize.com/post/create-a-linux-swap-file/
 
-# Create a file that will be used for swap:
+if [ ! -f /swapfile ]; then
+  # Create a file that will be used for swap:
 
-fallocate -l "$size" /swapfile
+  fallocate -l "$size" /swapfile
 
-# Only the root user should be able to write and read the swap file. 
-# To set the correct permissions type:
+  # Only the root user should be able to write and read the swap file. 
+  # To set the correct permissions type:
 
-chmod 600 /swapfile
+  chmod 600 /swapfile
 
-# Use the mkswap utility to set up the file as Linux swap area:
+  # Use the mkswap utility to set up the file as Linux swap area:
 
-mkswap /swapfile
+  mkswap /swapfile
 
-# Enable the swap with the following command:
+  # Enable the swap with the following command:
 
-swapon /swapfile
+  swapon /swapfile
 
-# To make the change permanent open the /etc/fstab file and append the following line:
+  # To make the change permanent open the /etc/fstab file and append the following line:
 
-echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+  echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+fi
