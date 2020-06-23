@@ -7,6 +7,8 @@ url="$2"
 admin="$3"
 ssl="$4"
 
+mkdir -p "${root}"
+
 echo "Writing host..."
 if [ "$ssl" == "true" ]; then
   echo "Enabling SSL..."
@@ -15,8 +17,8 @@ if [ "$ssl" == "true" ]; then
   mkdir -p "${certificates_dir}"
   cd "${certificates_dir}"
   # Generate the SSL Key and Certificate
-  openssl genrsa -out "${url}".key 2048
-  openssl req -new -x509 -key "${url}".key -out "${url}".cert -days 3650 -subj /CN="${url}"
+  openssl genrsa -out "${url}".key 2048  >/dev/null 2>&1
+  openssl req -new -x509 -key "${url}".key -out "${url}".cert -days 3650 -subj /CN="${url}" >/dev/null 2>&1
   hostfile="<VirtualHost *:443>\n"
 else
   hostfile="<VirtualHost *:80>\n"

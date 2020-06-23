@@ -100,9 +100,12 @@ else
     ssl = config_json["ssl"]
     swap_mem = config_json["swap_memory"]
 
+    cms = config_json["cms"]
+
     # Write SquelPro config file on the host
     config.vm.provision :host_shell do |host_shell|
       host_shell.inline = "/bin/bash ./provision/sequel_pro_connection_export.sh #{db_name} #{ip} #{db_user}"
+      host_shell.inline = "cd .. && npm install && gulp build"
     end
 
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
@@ -112,30 +115,38 @@ else
 
     # Configure PHP sendmail to use gmail via msmtp
     if !account_type.nil? && !account_type.empty? && !email_addr.nil? && !email_addr.empty? && !email_pass.nil? && !email_pass.empty?
-      # config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
+      config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
     end
 
     # Configure Apache
     if !web_root.nil? && !web_root.empty? && !url.nil? && !url.empty? && !server_admin.nil? && !server_admin.empty? && !ssl.nil? && !ssl.empty?
-      # config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
+      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
     end
 
-    
-
     if !web_root.nil? && !web_root.empty?
-      # config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
+      config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
     end
 
     # Create default database
     
     if !mysql_root_pw.nil? && !mysql_root_pw.empty? && !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
-      # config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, db_name, db_user, db_password]
+      config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, db_name, db_user, db_password]
     end
 
     # Import database if present
     if !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
-      # config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
+      config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
     end
+
+    case cms
+      when "drupal"
+        config.vm.provision :shell, :path => "provision/cms/drupal.sh", :args => [web_root], :privileged => false
+    end
+
+    # go to web root on vagrant ssh
+    # config.vm.provision :shell, :inline => "echo \"cd #{web_root}\" > /home/vagrant/.bashrc"
+
+    config.ssh.extra_args = ["-t", "cd #{web_root}; bash --login"]
 
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
