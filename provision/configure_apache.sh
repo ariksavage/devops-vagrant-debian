@@ -19,9 +19,9 @@ if [ "$ssl" == "true" ]; then
   # Generate the SSL Key and Certificate
   openssl genrsa -out "${url}".key 2048  >/dev/null 2>&1
   openssl req -new -x509 -key "${url}".key -out "${url}".cert -days 3650 -subj /CN="${url}" >/dev/null 2>&1
-  hostfile="<VirtualHost *:443>\n"
+  hostfile="<VirtualHost *:443>"
 else
-  hostfile="<VirtualHost *:80>\n"
+  hostfile="<VirtualHost *:80>"
 fi
 hostfile="${hostfile}
   ServerName ${url}
