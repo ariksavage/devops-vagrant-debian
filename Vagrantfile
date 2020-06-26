@@ -86,27 +86,26 @@ else
     # PROVISION
     ################################################################################
     ip = config_json["ip"]
+    # Database config
     db_name = config_json['mysql']['database']
     db_user = config_json['mysql']['user']['username']
     db_password  = config_json['mysql']['user']['password']
     mysql_root_pw = config_json["mysql"]["root_pw"]
+    # Email config
     account_type = config_json["server"]["mail"]["type"]
     email_addr = config_json["server"]["mail"]["sender"]
     email_pass = config_json["server"]["mail"]["password"]
     test_recipient = config_json["server"]["admin"]
+    # Other settings
     web_root = config_json["web_root"]
+    home_dir = config_json["home_dir"]
     url = config_json["url"]
     server_admin = config_json["server"]["admin"]
     ssl = config_json["ssl"]
     swap_mem = config_json["swap_memory"]
 
     cms = config_json["cms"]
-
-    # Write SquelPro config file on the host
-    config.vm.provision :host_shell do |host_shell|
-      host_shell.inline = "/bin/bash ./provision/sequel_pro_connection_export.sh #{db_name} #{ip} #{db_user}"
-      host_shell.inline = "cd .. && npm install && gulp build"
-    end
+    cms_version = config_json["cms_version"]
 
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
@@ -143,10 +142,14 @@ else
         config.vm.provision :shell, :path => "provision/cms/drupal.sh", :args => [web_root], :privileged => false
     end
 
-    # go to web root on vagrant ssh
-    # config.vm.provision :shell, :inline => "echo \"cd #{web_root}\" > /home/vagrant/.bashrc"
+    # Write SquelPro config file on the host
+    config.vm.provision :host_shell do |host_shell|
+      host_shell.inline = "/bin/bash ./provision/sequel_pro_connection_export.sh #{db_name} #{ip} #{db_user}"
+      host_shell.inline = "cd .. && npm install && gulp build"
+    end
 
-    config.ssh.extra_args = ["-t", "cd #{web_root}; bash --login"]
+    # go to web root on vagrant ssh
+    config.ssh.extra_args = ["-t", "cd #{home_dir}; bash --login"]
 
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
