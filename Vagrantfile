@@ -30,6 +30,7 @@ else
   ################################################################################
   Vagrant.configure("2") do |config|
     config.vbguest.iso_path = "https://download.virtualbox.org/virtualbox/5.2.0/VBoxGuestAdditions_5.2.0.iso"
+    config.vbguest.auto_update = false
     ##############################################################################
     # BOX BASE OPTIONS
     ##############################################################################
@@ -37,6 +38,7 @@ else
     config.vm.box_check_update = config_json["box_check_update"]
     config.vm.define config_json["name"]
     config.vm.post_up_message = config_json["post_up_message"]
+    
     #timezone
     if Vagrant.has_plugin?("vagrant-timezone")
       config.timezone.value = "America/Chicago"

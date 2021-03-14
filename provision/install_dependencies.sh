@@ -8,7 +8,8 @@ install_package() {
   apt-get -qq update
   if [ $(dpkg-query -W -f='${status}' $package 2>/dev/null | grep -c "ok installed") -eq 0 ];
   then
-    echo "Install $package..."
+    echo "Installing $package..."
+    echo "================================================================================"
     apt-get install -qq "$package"
   else
     echo "$package is already installed."
@@ -24,19 +25,23 @@ install_package lsb-release
 install_package ca-certificates
 install_package gnupg
 
-# Install PHP 7.3
-wget -q -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg >/dev/null 2>&1
-echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/php.list
-install_package php7.3
-install_package php7.3-cli
-install_package php7.3-common
-install_package php7.3-curl
-install_package php7.3-gd
-install_package php7.3-mbstring
-install_package php7.3-mysql
-install_package php7.3-xdebug
-install_package php7.3-xml
-install_package php7.3-zip
+# Install PHP 7.4
+echo "Installing PHP 7.4..."
+echo "================================================================================"
+apt-get -y install lsb-release apt-transport-https ca-certificates
+wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
+apt-get -qq update
+install_package php7.4
+install_package php7.4-cli
+install_package php7.4-common
+install_package php7.4-curl
+install_package php7.4-gd
+install_package php7.4-mbstring
+install_package php7.4-mysql
+install_package php7.4-xdebug
+install_package php7.4-xml
+install_package php7.4-zip
 
 # Install Apache
 install_package apache2
