@@ -29,6 +29,8 @@ else
   end
   ################################################################################
   Vagrant.configure("2") do |config|
+    config.vbguest.iso_path = "https://download.virtualbox.org/virtualbox/5.2.0/VBoxGuestAdditions_5.2.0.iso"
+    config.vbguest.auto_update = false
     ##############################################################################
     # BOX BASE OPTIONS
     ##############################################################################
@@ -36,6 +38,7 @@ else
     config.vm.box_check_update = config_json["box_check_update"]
     config.vm.define config_json["name"]
     config.vm.post_up_message = config_json["post_up_message"]
+    
     #timezone
     if Vagrant.has_plugin?("vagrant-timezone")
       config.timezone.value = "America/Chicago"
@@ -86,24 +89,26 @@ else
     # PROVISION
     ################################################################################
     ip = config_json["ip"]
+    # Database config
     db_name = config_json['mysql']['database']
     db_user = config_json['mysql']['user']['username']
     db_password  = config_json['mysql']['user']['password']
     mysql_root_pw = config_json["mysql"]["root_pw"]
+    # Email config
     account_type = config_json["server"]["mail"]["type"]
     email_addr = config_json["server"]["mail"]["sender"]
     email_pass = config_json["server"]["mail"]["password"]
     test_recipient = config_json["server"]["admin"]
+    # Other settings
     web_root = config_json["web_root"]
+    home_dir = config_json["home_dir"]
     url = config_json["url"]
     server_admin = config_json["server"]["admin"]
     ssl = config_json["ssl"]
     swap_mem = config_json["swap_memory"]
 
-    # Write SquelPro config file on the host
-    config.vm.provision :host_shell do |host_shell|
-      host_shell.inline = "/bin/bash ./provision/sequel_pro_connection_export.sh #{db_name} #{ip} #{db_user}"
-    end
+    cms = config_json["cms"]
+    cms_version = config_json["cms_version"]
 
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
@@ -112,30 +117,42 @@ else
 
     # Configure PHP sendmail to use gmail via msmtp
     if !account_type.nil? && !account_type.empty? && !email_addr.nil? && !email_addr.empty? && !email_pass.nil? && !email_pass.empty?
-      # config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
+      config.vm.provision :shell, :path => "provision/update_sendmail.sh", :args => [account_type, email_addr, email_pass, test_recipient], :privileged => true
     end
 
     # Configure Apache
     if !web_root.nil? && !web_root.empty? && !url.nil? && !url.empty? && !server_admin.nil? && !server_admin.empty? && !ssl.nil? && !ssl.empty?
-      # config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
+      config.vm.provision :shell, :path => "provision/configure_apache.sh", :args => [web_root, url, server_admin, ssl], :privileged => true
     end
 
-    
-
     if !web_root.nil? && !web_root.empty?
-      # config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
+      config.vm.provision :shell, :path => "provision/swap_memory.sh", :args => [swap_mem], :privileged => true
     end
 
     # Create default database
     
     if !mysql_root_pw.nil? && !mysql_root_pw.empty? && !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
-      # config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, db_name, db_user, db_password]
+      config.vm.provision :shell, :path => "provision/create_db_with_user.sh", :args => [mysql_root_pw, db_name, db_user, db_password]
     end
 
     # Import database if present
     if !db_name.nil? && !db_name.empty? && !db_user.nil? && !db_user.empty? && !db_password.nil? && !db_password.empty?
-      # config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
+      config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
     end
+
+    case cms
+      when "drupal"
+        config.vm.provision :shell, :path => "provision/cms/drupal.sh", :args => [web_root], :privileged => false
+    end
+
+    # Write SquelPro config file on the host
+    config.vm.provision :host_shell do |host_shell|
+      host_shell.inline = "/bin/bash ./provision/sequel_pro_connection_export.sh #{db_name} #{ip} #{db_user}"
+      host_shell.inline = "cd .. && npm install && gulp build"
+    end
+
+    # go to web root on vagrant ssh
+    config.ssh.extra_args = ["-t", "cd #{home_dir}; bash --login"]
 
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
