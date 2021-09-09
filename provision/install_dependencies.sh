@@ -8,6 +8,9 @@ install_package() {
   apt-get -qq update
   if [ $(dpkg-query -W -f='${status}' $package 2>/dev/null | grep -c "ok installed") -eq 0 ];
   then
+    echo ""
+    echo ""
+    echo ""
     echo "Installing $package..."
     echo "================================================================================"
     apt-get install -qq "$package"
@@ -26,10 +29,14 @@ install_package ca-certificates
 install_package gnupg
 
 # Install PHP 7.4
+echo ""
+echo ""
+echo ""
 echo "Installing PHP 7.4..."
 echo "================================================================================"
-apt-get -y install lsb-release apt-transport-https ca-certificates
-wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
+sudo apt-get -y install lsb-release apt-transport-https ca-certificates
+curl -fsSL https://packages.sury.org/php/apt.gpg | sudo apt-key --keyring /etc/apt/trusted.gpg.d/php.gpg add
+
 echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
 apt-get -qq update
 install_package php7.4
@@ -44,14 +51,24 @@ install_package php7.4-xml
 install_package php7.4-zip
 
 # Install Apache
+echo ""
+echo ""
+echo ""
+echo "Install Apache2"
+echo "================================================================================"
 install_package apache2
 service apache2 status
 
 # MySQL
+echo ""
+echo ""
+echo ""
+echo "Install MySQL"
+echo "================================================================================"
 cd /tmp
 wget https://dev.mysql.com/get/mysql-apt-config_0.8.13-1_all.deb >/dev/null 2>&1
 dpkg -i mysql-apt-config* >/dev/null 2>&1
-install_package mariadb-server-10.3
+install_package mariadb-server
 
 # https://bertvv.github.io/notes-to-self/2015/11/16/automating-mysql_secure_installation/
 mysql --user=root -p${mysql_root_pass} <<_EOF_
@@ -64,6 +81,11 @@ FLUSH PRIVILEGES;
 _EOF_
 
 # NodeJS
+echo ""
+echo ""
+echo ""
+echo "Install Node JS"
+echo "================================================================================"
 curl -sL https://deb.nodesource.com/setup_14.x -o ~/nodesource_setup.sh  >/dev/null 2>&1
 bash ~/nodesource_setup.sh  >/dev/null 2>&1
 rm ~/nodesource_setup.sh 
@@ -72,32 +94,15 @@ install_package nodejs
 # Composer
 
 if [ $(dpkg-query -W -f='${status}' composer 2>/dev/null | grep -c "ok installed") -eq 0 ]; then
+  echo ""
+  echo ""
+  echo ""
   echo "Install Composer"
-
-  EXPECTED_CHECKSUM="$(wget -q -O - https://composer.github.io/installer.sig)"
-  php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-  ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
-
-  if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
-  then
-    >&2 echo 'ERROR: Invalid installer checksum'
-    rm composer-setup.php
-    exit 1
-  fi
-
-  php composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer
-  RESULT=$?
-  rm composer-setup.php
-  # download keys
-  echo "Create config directory"
-  mkdir -p /home/vagrant/.config/composer
-  echo "Download latest Composer dev keys"
-  wget -q https://composer.github.io/snapshots.pub -o /home/vagrant/.config/composer/keys.dev.pub
-  echo "Download latest Composer tags keys"
-  wget -q https://composer.github.io/releases.pub -o /home/vagrant/.config/composer/keys.tags.pub
-
-  chmod -R 644 /home/vagrant/.config/composer/*.pub
-  chown -R vagrant:vagrant /home/vagrant/.config
+  echo "================================================================================"
+  curl -sS https://getcomposer.org/installer | php
+  mv composer.phar /usr/local/bin/composer
+  chmod +x /usr/local/bin/composer
+  sudo composer self-update
 else
   echo "Composer is already installed"
 fi
