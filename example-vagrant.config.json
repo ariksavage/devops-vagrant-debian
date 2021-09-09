@@ -1,71 +1,49 @@
 {
-  "name": "Base Box",
-  "post_up_message": "Welcome to Base",
+  "name": "Test Server",
+  "post_up_message": "Welcome to Test Server",
   "gui": false,
   "memory": "4096",
   "swap_memory": "8G",
-  "cms": "",
-  "box": "debian/buster64",
-  "box_url": "https://app.vagrantup.com/debian/boxes/buster64",
+  "box": "debian/bullseye64",
+  "box_url": "https://app.vagrantup.com/debian/boxes/bullseye64",
   "box_check_update": true,
   "ssl": "true",
-  "ip": "192.168.42.100",
+  "ip": "192.168.1.001",
   "gui": false,
-  "memory": "975",
-  "url": "local.base.com",
+  "url": "local.testserver.com",
   "server": {
-    "admin": "name@domain.com",
+    "admin": "ariksavage@gmail.com",
     "mail": {
       "type": "gmail",
       "sender": "moxyserver@gmail.com",
-      "password": "*****"
+      "password": "************"
     }
   },
   "mysql": {
-    "root_pw": "*****",
-    "database": "brand_new_database",
+    "host": "localhost",
+    "root_pw": "****************",
+    "database": "thyme_db",
     "user": {
-      "username": "someguy",
-      "password": "*****"
+      "username": "db_admin",
+      "password": "****************"
     }
   },
-  "web_root": "/var/www/html",
+  "web_root": "/var/www/html/web",
   "synced_folders": [
     {
-      "host": "../web",
+      "host": "../server",
       "guest": "/var/www/html",
-      "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 664
+      "type": "nfs"
     },
     {
-      "host": "../tools",
-      "guest": "/home/vagrant/tools",
-      "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 764
+      "host": "../db",
+      "guest": "/home/vagrant/db",
+      "type": "nfs"
     },
     {
-    "host": "../db",
-    "guest": "/home/vagrant/db",
-    "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 764
-    },
-    {
-    "host": "../config",
-    "guest": "/home/vagrant/config",
-    "owner": "vagrant",
-      "group": "www-data",
-      "type": "nfs",
-      "dmode": 775,
-      "fmode": 764
+      "host": "../config",
+      "guest": "/home/vagrant/config",
+      "type": "nfs"
     }
   ],
   "forwarded_ports": [

@@ -74,16 +74,7 @@ else
       if !Dir.exists?(folder["host"])
         Dir.mkdir folder["host"]
       end
-      case folder["type"]
-        when "nfs"
-          # Set nfs with a timeout of 2 seconds as a balance for performance and gulp watch.
-          config.vm.synced_folder folder["host"], folder["guest"], type: "nfs", mount_options: ['actimeo=2']
-          # This uses uid and gid of the user that started vagrant.
-          config.nfs.map_uid = Process.uid
-          config.nfs.map_gid = Process.gid
-        else
-          config.vm.synced_folder folder["host"], folder["guest"]
-      end
+      config.vm.synced_folder folder["host"], folder["guest"]
     end
     ################################################################################
     # PROVISION
