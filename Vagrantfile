@@ -1,14 +1,18 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-################################################################################
-required_plugins=['vagrant-hostsupdater', 'vagrant-vbguest']
+##############################################################################
+# VALIDATE PLUGINS
+##############################################################################
+required_plugins=['vagrant-hostsupdater', 'vagrant-vbguest', 'vagrant-timezone']
 required_plugins.each do |plugin|
   if !Vagrant.has_plugin?(plugin)
     raise plugin.to_s + " is not installed. This plug-in is required. Run ``vagrant plugin install "+plugin.to_s+"`` to install."
   end
 end
-################################################################################
+##############################################################################
+# GET CONFIG
+##############################################################################
 if File.exist?("../config/vagrant.config.json")
   config_json = JSON.parse(File.read("../config/vagrant.config.json"))
 elsif File.exist?("./config/vagrant.config.json")
@@ -16,7 +20,6 @@ elsif File.exist?("./config/vagrant.config.json")
 elsif File.exist?("vagrant.config.json")
   config_json = JSON.parse(File.read("vagrant.config.json"))
 end
-
 # If no config, print error and exit. Otherwise vagrant up
 if config_json.nil? || config_json.empty?
   print "No vagrant.config.json file found.\n"
@@ -30,17 +33,16 @@ else
     raise "You are using the default MySQL root password. Edit the config.json to update it."
   end
   ################################################################################
+  # GUILD BOX
+  ################################################################################
   Vagrant.configure("2") do |config|
-    # config.vbguest.iso_path = "https://download.virtualbox.org/virtualbox/5.2.0/VBoxGuestAdditions_5.2.0.iso"
-    # config.vbguest.auto_update = false
     ##############################################################################
     # BOX BASE OPTIONS
     ##############################################################################
-    config.vm.box = config_json["box"]
+    config.vm.box = "debian/bullseye64"
     config.vm.box_check_update = config_json["box_check_update"]
     config.vm.define config_json["name"]
-    config.vm.post_up_message = config_json["post_up_message"]
-    
+    config.vbguest.auto_update = false
     #timezone
     if Vagrant.has_plugin?("vagrant-timezone")
       config.timezone.value = "America/Chicago"
@@ -103,8 +105,8 @@ else
     ssl = config_json["ssl"]
     swap_mem = config_json["swap_memory"]
 
-    # cms = config_json["cms"]
-    # cms_version = config_json["cms_version"]
+    cms = config_json["cms"]
+    cms_version = config_json["cms_version"]
 
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
@@ -136,10 +138,16 @@ else
       config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
     end
 
-    # case cms
-    #   when "drupal"
-    #     config.vm.provision :shell, :path => "provision/cms/drupal.sh", :args => [web_root], :privileged => false
-    # end
+    if !cms.nil?
+      case cms
+        when "drupal"
+          config.vm.provision :shell, :path => "provision/cms/drupal.sh", :args => [web_root], :privileged => false
+      end
+    end
+
+    ################################################################################
+    # POST PROVISION
+    ################################################################################
 
     # Write SquelPro config file on the host
     config.vm.provision :host_shell do |host_shell|
@@ -148,21 +156,17 @@ else
     end
 
     # go to web root on vagrant ssh
-    # config.ssh.extra_args = ["-t", "cd #{home_dir}; bash --login"]
+    config.ssh.extra_args = ["-t", "cd #{home_dir}; bash --login"]
 
-    config.ssh.forward_agent = true
-    config.vm.boot_timeout = 120
+    # config.ssh.forward_agent = true
+    config.vm.boot_timeout = 5000
+    config.ssh.insert_key = false
 
+    # Maps $ip:80 to 127.0.0.1:8080 so that the host updater behaves as expected.
     config.trigger.after :up do |trigger|
       ip = config_json["ip"]
-      # Maps $ip:80 to 127.0.0.1:8080 so that the host updater behaves as expected.
       trigger.run = {inline: "sudo ifconfig lo0 #{ip} alias"}
       trigger.run = {inline: "echo 'rdr pass on lo0 inet proto tcp from any to #{ip} port 80 -> 127.0.0.1 port 8080' | sudo pfctl -ef -"}
     end
-
-    config.trigger.after :halt do |trigger|
-      ip = config_json["ip"]
-      trigger.info = "haltenzie! #{ip}"
-    end
-  end
-end
+  end # end do |config|
+end #end if config_json
