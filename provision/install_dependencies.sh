@@ -15,7 +15,11 @@ install_package() {
     echo "================================================================================"
     apt-get install -qq "$package"
   else
+    echo ""
+    echo ""
     echo "$package is already installed."
+    echo ""
+    echo ""
   fi
 }
 
@@ -28,28 +32,6 @@ install_package lsb-release
 install_package ca-certificates
 install_package gnupg
 
-# Install PHP 7.4
-echo ""
-echo ""
-echo ""
-echo "Installing PHP 7.4..."
-echo "================================================================================"
-sudo apt-get -y install lsb-release apt-transport-https ca-certificates
-curl -fsSL https://packages.sury.org/php/apt.gpg | sudo apt-key --keyring /etc/apt/trusted.gpg.d/php.gpg add
-
-echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" | sudo tee /etc/apt/sources.list.d/php.list
-apt-get -qq update
-install_package php7.4
-install_package php7.4-cli
-install_package php7.4-common
-install_package php7.4-curl
-install_package php7.4-gd
-install_package php7.4-mbstring
-install_package php7.4-mysql
-install_package php7.4-xdebug
-install_package php7.4-xml
-install_package php7.4-zip
-
 # Install Apache
 echo ""
 echo ""
@@ -58,6 +40,30 @@ echo "Install Apache2"
 echo "================================================================================"
 install_package apache2
 service apache2 status
+
+# Install PHP 8.1
+echo ""
+echo ""
+echo ""
+echo "Installing PHP 8.1..."
+echo "================================================================================"
+# https://www.linuxcapable.com/how-to-install-php-8-1-on-debian-11-bullseye/
+apt-get -qq install ca-certificates apt-transport-https software-properties-common lsb-release -y
+wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg >/dev/null 2>&1
+sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
+apt-get -qq update
+install_package php8.1
+install_package libapache2-mod-php8.1
+service apache2 restart
+install_package php8.1-cli
+install_package php8.1-common
+install_package php8.1-curl
+install_package php8.1-gd
+install_package php8.1-mbstring
+install_package php8.1-mysql
+install_package php8.1-xdebug
+install_package php8.1-xml
+install_package php8.1-zip
 
 # MySQL
 echo ""
@@ -72,9 +78,7 @@ install_package mariadb-server
 
 # https://bertvv.github.io/notes-to-self/2015/11/16/automating-mysql_secure_installation/
 mysql --user=root -p${mysql_root_pass} <<_EOF_
-UPDATE mysql.user SET Password=PASSWORD('${mysql_root_pass}'),plugin='mysql_native_password' WHERE User='root';
-DELETE FROM mysql.user WHERE User='';
-DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1');
+ALTER USER 'root'@'localhost' IDENTIFIED BY '${mysql_root_pass}';
 DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test\\_%';
 FLUSH PRIVILEGES;
@@ -98,6 +102,30 @@ if [ $(dpkg-query -W -f='${status}' composer 2>/dev/null | grep -c "ok installed
   echo ""
   echo ""
   echo "Install Composer"
+
+  EXPECTED_CHECKSUM="$(wget -q -O - https://composer.github.io/installer.sig)"
+  php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+  ACTUAL_CHECKSUM="$(php -r "echo hash_file('sha384', 'composer-setup.php');")"
+
+  if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]
+  then
+    >&2 echo 'ERROR: Invalid installer checksum'
+    rm composer-setup.php
+    exit 1
+  fi
+
+  php composer-setup.php --quiet --install-dir=/usr/local/bin --filename=composer >/dev/null 2>&1
+  RESULT=$?
+  rm composer-setup.php
+  # download keys
+  echo "Create config directory"
+  mkdir -p /home/vagrant/.config/composer 
+  echo "Download latest Composer dev keys"
+  wget -q https://composer.github.io/snapshots.pub -o /home/vagrant/.config/composer/keys.dev.pub
+  echo "Download latest Composer tags keys"
+  wget -q https://composer.github.io/releases.pub -o /home/vagrant/.config/composer/keys.tags.pub
+  chmod -R 644 /home/vagrant/.config/composer/*.pub
+  chown -R vagrant:vagrant /home/vagrant/.config
   echo "================================================================================"
   curl -sS https://getcomposer.org/installer | php
   mv composer.phar /usr/local/bin/composer

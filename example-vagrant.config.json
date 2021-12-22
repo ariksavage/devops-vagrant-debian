@@ -46,24 +46,5 @@
       "type": "nfs"
     }
   ],
-  "forwarded_ports": [
-    {
-      "guest": 35729,
-      "host": 35729,
-      "protocol": "tcp",
-      "auto_correct": true
-    },
-    {
-      "guest": 8983,
-      "host": 8983,
-      "protocol": "tcp",
-      "auto_correct": true
-    },
-    {
-      "guest": 3306,
-      "host": 3306,
-      "protocol": "tcp",
-      "auto_correct": true
-    }
-  ]
+  "forwarded_ports": []
 }
