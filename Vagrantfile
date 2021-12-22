@@ -11,6 +11,8 @@ end
 ################################################################################
 if File.exist?("../config/vagrant.config.json")
   config_json = JSON.parse(File.read("../config/vagrant.config.json"))
+elsif File.exist?("./config/vagrant.config.json")
+  config_json = JSON.parse(File.read("./config/vagrant.config.json"))
 elsif File.exist?("vagrant.config.json")
   config_json = JSON.parse(File.read("vagrant.config.json"))
 end
@@ -29,8 +31,8 @@ else
   end
   ################################################################################
   Vagrant.configure("2") do |config|
-    config.vbguest.iso_path = "https://download.virtualbox.org/virtualbox/5.2.0/VBoxGuestAdditions_5.2.0.iso"
-    config.vbguest.auto_update = false
+    # config.vbguest.iso_path = "https://download.virtualbox.org/virtualbox/5.2.0/VBoxGuestAdditions_5.2.0.iso"
+    # config.vbguest.auto_update = false
     ##############################################################################
     # BOX BASE OPTIONS
     ##############################################################################
@@ -61,7 +63,10 @@ else
       config.vm.network "forwarded_port", guest: port["guest"], host: port["host"], protocol: port["protocol"], auto_correct: port["auto_correct"]
     end
 
-    config.vm.network "public_network", bridge: ["en0: Wi-Fi (Wireless)"]
+    config.vm.network "forwarded_port", guest: 80, host: 8080
+    config.vm.network "forwarded_port", guest: 3306, host: 3306
+
+    config.vm.network "public_network", bridge: ["en0: Wi-Fi"]
 
     if Vagrant.has_plugin?("vagrant-hostsupdater")
       config.vm.hostname = config_json["url"]
@@ -98,8 +103,8 @@ else
     ssl = config_json["ssl"]
     swap_mem = config_json["swap_memory"]
 
-    cms = config_json["cms"]
-    cms_version = config_json["cms_version"]
+    # cms = config_json["cms"]
+    # cms_version = config_json["cms_version"]
 
     # Install dependencies: PHP, MySQL, Apache, NodeJS, etc
     if !mysql_root_pw.nil? && !mysql_root_pw.empty?
@@ -131,10 +136,10 @@ else
       config.vm.provision :shell, :path => "provision/import_database.sh", :args => [db_user, db_password, db_name]
     end
 
-    case cms
-      when "drupal"
-        config.vm.provision :shell, :path => "provision/cms/drupal.sh", :args => [web_root], :privileged => false
-    end
+    # case cms
+    #   when "drupal"
+    #     config.vm.provision :shell, :path => "provision/cms/drupal.sh", :args => [web_root], :privileged => false
+    # end
 
     # Write SquelPro config file on the host
     config.vm.provision :host_shell do |host_shell|
@@ -143,9 +148,21 @@ else
     end
 
     # go to web root on vagrant ssh
-    config.ssh.extra_args = ["-t", "cd #{home_dir}; bash --login"]
+    # config.ssh.extra_args = ["-t", "cd #{home_dir}; bash --login"]
 
     config.ssh.forward_agent = true
     config.vm.boot_timeout = 120
+
+    config.trigger.after :up do |trigger|
+      ip = config_json["ip"]
+      # Maps $ip:80 to 127.0.0.1:8080 so that the host updater behaves as expected.
+      trigger.run = {inline: "sudo ifconfig lo0 #{ip} alias"}
+      trigger.run = {inline: "echo 'rdr pass on lo0 inet proto tcp from any to #{ip} port 80 -> 127.0.0.1 port 8080' | sudo pfctl -ef -"}
+    end
+
+    config.trigger.after :halt do |trigger|
+      ip = config_json["ip"]
+      trigger.info = "haltenzie! #{ip}"
+    end
   end
 end
